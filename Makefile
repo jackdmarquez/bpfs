@@ -1,6 +1,6 @@
 LD = ld
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall 
 # Remove debug checks:
 CFLAGS += -DNDEBUG
 # Enable optimizations:

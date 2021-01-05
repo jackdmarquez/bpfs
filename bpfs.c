@@ -244,7 +244,7 @@ void set_super(struct bpfs_super *super)
 
 struct bpfs_super* get_bpram_super(void)
 {
-	static_assert(BPFS_BLOCKNO_INVALID == 0 && BPFS_BLOCKNO_SUPER == 1);
+	static_assert(BPFS_BLOCKNO_INVALID == 0 && BPFS_BLOCKNO_SUPER == 1, "HOLA");
 	return (struct bpfs_super*) bpram;
 }
 
@@ -693,7 +693,7 @@ static uint64_t alloc_block(void)
 	DBprintf("%s() = %" PRIu64 "\n", __FUNCTION__, no + 1);
 	if (no == block_alloc.bitmap.ntotal)
 		return BPFS_BLOCKNO_INVALID;
-	static_assert(BPFS_BLOCKNO_INVALID == 0);
+	static_assert(BPFS_BLOCKNO_INVALID == 0,"HOLA");
 	assert(no + 1 >= BPFS_BLOCKNO_FIRST_ALLOC);
 #if (DETECT_STRAY_ACCESSES || DETECT_NONCOW_WRITES_SP || DETECT_NONCOW_WRITES_SCSP)
 	xsyscall(mprotect(get_block(no + 1), BPFS_BLOCK_SIZE, PROT_READ | PROT_WRITE));
@@ -708,7 +708,7 @@ void unfree_block(uint64_t blockno)
 {
 	DBprintf("%s() = %" PRIu64 "\n", __FUNCTION__, blockno);
 	assert(blockno != BPFS_BLOCKNO_INVALID);
-	static_assert(BPFS_BLOCKNO_INVALID == 0);
+	static_assert(BPFS_BLOCKNO_INVALID == 0,"HOLA");
 	bitmap_unfree(&block_alloc.bitmap, blockno - 1);
 #if (DETECT_STRAY_ACCESSES || DETECT_NONCOW_WRITES_SP)
 	xsyscall(mprotect(get_block(blockno), BPFS_BLOCK_SIZE, PROT_READ | PROT_WRITE));
@@ -721,7 +721,7 @@ void unfree_block(uint64_t blockno)
 #if COMMIT_MODE != MODE_BPFS
 bool block_freshly_alloced(uint64_t blockno)
 {
-	static_assert(BPFS_BLOCKNO_INVALID == 0);
+	static_assert(BPFS_BLOCKNO_INVALID == 0,"HOLA");
 	return staged_list_freshly_alloced(block_alloc.bitmap.allocs, blockno - 1);
 }
 #endif
@@ -730,7 +730,7 @@ static void set_block(uint64_t blockno)
 {
 	DBprintf("%s() = %" PRIu64 "\n", __FUNCTION__, blockno);
 	assert(blockno != BPFS_BLOCKNO_INVALID);
-	static_assert(BPFS_BLOCKNO_INVALID == 0);
+	static_assert(BPFS_BLOCKNO_INVALID == 0,"HOLA");
 	bitmap_set(&block_alloc.bitmap, blockno - 1);
 }
 
@@ -745,7 +745,7 @@ static void free_block(uint64_t blockno)
 #else
 	assert(blockno >= BPFS_BLOCKNO_FIRST_ALLOC);
 #endif
-	static_assert(BPFS_BLOCKNO_INVALID == 0);
+	static_assert(BPFS_BLOCKNO_INVALID == 0,"HOLA");
 	bitmap_free(&block_alloc.bitmap, blockno - 1);
 #if DETECT_STRAY_ACCESSES
 	xsyscall(mprotect(get_block(blockno), BPFS_BLOCK_SIZE, PROT_NONE));
@@ -764,7 +764,7 @@ void unalloc_block(uint64_t blockno)
 	DBprintf("%s() = %" PRIu64 "\n", __FUNCTION__, blockno);
 	assert(blockno != BPFS_BLOCKNO_INVALID);
 	assert(blockno >= BPFS_BLOCKNO_FIRST_ALLOC);
-	static_assert(BPFS_BLOCKNO_INVALID == 0);
+	static_assert(BPFS_BLOCKNO_INVALID == 0,"HOLA");
 	bitmap_unalloc(&block_alloc.bitmap, blockno - 1);
 #if DETECT_STRAY_ACCESSES
 	xsyscall(mprotect(get_block(blockno), BPFS_BLOCK_SIZE, PROT_NONE));
@@ -830,7 +830,7 @@ char* get_block(uint64_t blockno)
 		assert(0);
 		return NULL;
 	}
-	static_assert(BPFS_BLOCKNO_INVALID == 0);
+	static_assert(BPFS_BLOCKNO_INVALID == 0,"HOLA");
 	if (blockno > bpfs_super->nblocks)
 	{
 		assert(0);
@@ -852,7 +852,7 @@ char* get_block(uint64_t blockno)
 static bool block_is_alloced(uint64_t blockno)
 {
 	xassert(blockno != BPFS_BLOCKNO_INVALID);
-	static_assert(BPFS_BLOCKNO_INVALID == 0);
+	static_assert(BPFS_BLOCKNO_INVALID == 0,"HOLA");
 	return bitmap_is_alloced(&block_alloc.bitmap, blockno - 1);
 }
 #endif
@@ -1004,7 +1004,7 @@ static int init_inode_allocations(void)
 	struct bpfs_tree_root *inode_root = get_inode_root();
 
 	// This code assumes that inodes are contiguous in the inode tree
-	static_assert(!(BPFS_BLOCK_SIZE % sizeof(struct bpfs_inode)));
+	static_assert(!(BPFS_BLOCK_SIZE % sizeof(struct bpfs_inode)),"HOLA");
 
 	return bitmap_init(&inode_alloc.bitmap,
 	                   NBLOCKS_FOR_NBYTES(inode_root->nbytes)
@@ -1061,7 +1061,7 @@ static uint64_t alloc_inode(void)
 		no = bitmap_alloc(&inode_alloc.bitmap);
 		assert(no != inode_alloc.bitmap.ntotal);
 	}
-	static_assert(BPFS_INO_INVALID == 0);
+	static_assert(BPFS_INO_INVALID == 0,"HOLA");
 #if DETECT_ZEROLINKS_WITH_LINKS
 	assert(!get_inode(no + 1)->nlinks);
 #endif
@@ -1072,7 +1072,7 @@ static uint64_t alloc_inode(void)
 static bool set_inode(uint64_t ino)
 {
 	assert(ino != BPFS_INO_INVALID);
-	static_assert(BPFS_INO_INVALID == 0);
+	static_assert(BPFS_INO_INVALID == 0,"HOLA");
 	return bitmap_ensure_set(&inode_alloc.bitmap, ino - 1);
 }
 
@@ -1080,7 +1080,7 @@ static void free_inode(uint64_t ino)
 {
 	assert(ino != BPFS_INO_INVALID);
 	DIprintf("%s(ino = %" PRIu64 ")\n", __FUNCTION__, ino);
-	static_assert(BPFS_INO_INVALID == 0);
+	static_assert(BPFS_INO_INVALID == 0,"HOLA");
 	bitmap_free(&inode_alloc.bitmap, ino - 1);
 }
 
@@ -1105,7 +1105,7 @@ int get_inode_offset(uint64_t ino, uint64_t *poffset)
 		return -EINVAL;
 	}
 
-	static_assert(BPFS_INO_INVALID == 0);
+	static_assert(BPFS_INO_INVALID == 0,"HOLA");
 	no = ino - 1;
 
 	if (no >= inode_alloc.bitmap.ntotal)
@@ -1188,7 +1188,7 @@ static uint64_t bpram_blockno(const void *x)
 	assert(bpram <= c && c < bpram + bpram_size);
 	if (c < bpram || bpram + bpram_size <= c)
 		return BPFS_BLOCKNO_INVALID;
-	static_assert(BPFS_BLOCKNO_INVALID == 0);
+	static_assert(BPFS_BLOCKNO_INVALID == 0,"HOLA");
 	return (((uintptr_t) (c - bpram)) / BPFS_BLOCK_SIZE) + 1;
 }
 #endif
@@ -1574,8 +1574,7 @@ static int init_allocations(bool mounting)
 
 	xcall(init_block_allocations());
 	xcall(init_inode_allocations());
-
-	static_assert(BPFS_BLOCKNO_INVALID == 0);
+	static_assert(BPFS_BLOCKNO_INVALID == 0,"HOLA");
 	for (i = 1; i < BPFS_BLOCKNO_FIRST_ALLOC; i++)
 		set_block(i);
 	set_block(bpfs_super->inode_root_addr);
@@ -1680,7 +1679,7 @@ static void persist_superblock(void)
 	{
 		size_t len = BPFS_BLOCK_SIZE * 2; /* two super blocks */
 		static_assert(BPFS_BLOCKNO_INVALID == 0
-		              && BPFS_BLOCKNO_SUPER == 1 && BPFS_BLOCKNO_SUPER_2 == 2);
+		              && BPFS_BLOCKNO_SUPER == 1 && BPFS_BLOCKNO_SUPER_2 == 2,"HOLA");
 		xsyscall(mprotect(bpram, len, PROT_READ | PROT_WRITE));
 	}
 # endif
@@ -1706,7 +1705,7 @@ static void persist_superblock(void)
 	{
 		size_t len = BPFS_BLOCK_SIZE * 2; /* two super blocks */
 		static_assert(BPFS_BLOCKNO_INVALID == 0
-		              && BPFS_BLOCKNO_SUPER == 1 && BPFS_BLOCKNO_SUPER_2 == 2);
+		              && BPFS_BLOCKNO_SUPER == 1 && BPFS_BLOCKNO_SUPER_2 == 2,"HOLA");
 		xsyscall(mprotect(bpram, len, PROT_READ));
 	}
 # endif
@@ -2404,7 +2403,7 @@ static int create_file(fuse_req_t req, fuse_ino_t parent_ino,
 static void fuse_init(void *userdata, struct fuse_conn_info *conn)
 {
 	const char *mode;
-	static_assert(FUSE_ROOT_ID == BPFS_INO_ROOT);
+	static_assert(FUSE_ROOT_ID == BPFS_INO_ROOT,"HOLA");
 	Dprintf("%s()\n", __FUNCTION__);
 	switch (COMMIT_MODE)
 	{
@@ -2455,7 +2454,7 @@ static void fuse_statfs(fuse_req_t req, fuse_ino_t ino)
 	memset(&stv, 0, sizeof(stv));
 	stv.f_bsize = BPFS_BLOCK_SIZE;
 	stv.f_frsize = BPFS_BLOCK_SIZE;
-	static_assert(sizeof(stv.f_blocks) >= sizeof(bpfs_super->nblocks));
+	static_assert(sizeof(stv.f_blocks) >= sizeof(bpfs_super->nblocks),"HOLA");
 	stv.f_blocks = bpfs_super->nblocks;
 	stv.f_bfree = block_alloc.bitmap.nfree;
 	stv.f_bavail = stv.f_bfree; // NOTE: no space reserved for root
@@ -2744,7 +2743,7 @@ static unsigned count_bits(unsigned x)
 // instruction for sizes <= ATOMIC_SIZE.
 static void atomic_memcpy(void *dst, const void *src, size_t n)
 {
-	static_assert(ATOMIC_SIZE == 8);
+	static_assert(ATOMIC_SIZE == 8,"HOLA");
 	assert(can_atomic_write(block_offset(dst), n));
 
 	// Specialize for each size to reduce byte count overhead
@@ -2803,10 +2802,10 @@ static int callback_setattr(char *block, unsigned off,
 	{
 		struct bpfs_inode stage = {.uid = attr->st_uid, .gid = attr->st_gid};
 
-		static_assert(!(offsetof(struct bpfs_inode, uid) % 8));
+		static_assert(!(offsetof(struct bpfs_inode, uid) % 8),"HOLA");
 		static_assert(offsetof(struct bpfs_inode, uid) + sizeof(inode->uid)
-		              == offsetof(struct bpfs_inode, gid));
-		static_assert(sizeof(inode->uid) + sizeof(inode->gid) == 8);
+		              == offsetof(struct bpfs_inode, gid),"HOLA");
+		static_assert(sizeof(inode->uid) + sizeof(inode->gid) == 8,"HOLA");
 
 		atomic_memcpy(&inode->uid, &stage.uid,
 		              sizeof(inode->uid) + sizeof(inode->gid));
@@ -4092,7 +4091,7 @@ void random_fsck(int signo)
 	Dprintf("fsck passed\n");
 
 	memset(&itv, 0, sizeof(itv));
-	static_assert(RFSCK_MAX_INTERVAL <= RAND_MAX);
+	static_assert(RFSCK_MAX_INTERVAL <= RAND_MAX,"HOLA");
 	itv.it_value.tv_usec = rand() % RFSCK_MAX_INTERVAL;
 	xsyscall(setitimer(ITIMER_VIRTUAL, &itv, NULL));
 }
